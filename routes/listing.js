@@ -12,31 +12,39 @@ router
   .route("/")
   .get(wrapAsync(listingController.index))
   .post(
-    isLoggedIn,
+    isLoggedIn("You must be logged in to create listing!"),
     upload.single("listing[image]"),
     validateListing,
     wrapAsync(listingController.createListing)
   );
 
 // Create Route Form
-router.get("/new", isLoggedIn, listingController.renderNewForm);
+router.get(
+  "/new",
+  isLoggedIn("You must be logged in to create listing!"),
+  listingController.renderNewForm
+);
 
 router
   .route("/:id")
   .get(wrapAsync(listingController.showListing))
   .put(
-    isLoggedIn,
+    isLoggedIn("You must be logged in to edit listing!"),
     isOwner,
     upload.single("listing[image]"),
     validateListing,
     wrapAsync(listingController.updateListing)
   )
-  .delete(isLoggedIn, isOwner, wrapAsync(listingController.destroyListing));
+  .delete(
+    isLoggedIn("You must be logged in to delete listing!"),
+    isOwner,
+    wrapAsync(listingController.destroyListing)
+  );
 
 // Update Route Form
 router.get(
   "/:id/edit",
-  isLoggedIn,
+  isLoggedIn("You must be logged in to edit listing!"),
   isOwner,
   wrapAsync(listingController.renderEditForm)
 );
