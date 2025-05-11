@@ -70,12 +70,22 @@ module.exports.updateListing = async (req, res) => {
   let { id } = req.params;
   let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
 
+  const fetchUrl = `https://api.opencagedata.com/geocode/v1/geojson?q=${encodeURIComponent(
+    req.body.listing.location
+  )}&key=${process.env.MAP_API_KEY}&limit=1`;
+
+  const response = await fetch(fetchUrl);
+  const data = await response.json();
+
+  listing.geometry = data.features[0].geometry;
+
   if (typeof req.file !== "undefined") {
     let url = req.file.path;
     let filename = req.file.filename;
     listing.image = { url, filename };
-    await listing.save();
   }
+
+  await listing.save();
 
   req.flash("success", "Listing Updated!");
   res.redirect(`/listings/${id}`);
